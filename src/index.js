@@ -7,18 +7,22 @@ class Jack {
     this.hitList = hitList;
   }
 
-  AddToHitList(address, action) {
-    this.hitList.push({ address, action });
+  AddToHitList(address, actions) {
+    this.hitList.push({ address, actions });
   }
 
   async Ripper() {
     for (let i in this.hitList) {
-      const prey = this.hitList[i];
-      if (!prey.address || !prey.action) { continue; }
+      let prey = this.hitList[i];
+      if (!prey.address || !prey.actions) { continue; }
+      if (typeof(prey.actions) !== 'object') { prey.actions = [prey.actions]; }
       console.log(`Approaching ${prey.address}`);
       const result = await this.driver.get(prey.address);
-      const actionResult = await prey.action();
-      console.log('Result: ', actionResult);
+      for (let j in prey.actions) {
+        const action = prey.actions[j];
+        const actionResult = await action();
+        console.log(actionResult);
+      }
       console.log(`Striking ${prey.address} off the list`)
     }
 
@@ -38,6 +42,6 @@ const myGoogleAction = async () => {
 const myAppleAction = async () => {
   return await jack.driver.getTitle();
 };
-jack.AddToHitList('http://www.google.com', myGoogleAction);
+jack.AddToHitList('http://www.google.com', [myGoogleAction, myGoogleAction]);
 jack.AddToHitList('http://www.apple.com', myAppleAction);
 jack.Ripper();
