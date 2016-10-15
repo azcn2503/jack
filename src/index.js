@@ -1,9 +1,10 @@
-import webdriver, { By, until } from "selenium-webdriver";
+import webdriver, { By } from "selenium-webdriver";
 import "babel-polyfill";
 
-class Jack {
+export default class Jack {
   constructor(hitList = []) {
     this.driver = new webdriver.Builder().forBrowser('chrome').build();
+    this.By = By;
     this.hitList = hitList;
   }
 
@@ -16,16 +17,26 @@ class Jack {
       let prey = this.hitList[i];
       if (!prey.address || !prey.actions) { continue; }
       if (typeof(prey.actions) !== 'object') { prey.actions = [prey.actions]; }
+      console.log('...');
       console.log(`Approaching ${prey.address}`);
-      const result = await this.driver.get(prey.address);
+      try {
+        const result = await this.driver.get(prey.address);
+      } catch (e) {
+        console.error(e);
+        continue;
+      }
       for (let j in prey.actions) {
         const action = prey.actions[j];
-        const actionResult = await action();
-        console.log(actionResult);
+        try {
+          const actionResult = await action();
+        } catch (e) {
+          console.error(e);
+          continue;
+        }
+        console.log('Done!');
       }
-      console.log(`Striking ${prey.address} off the list`)
+      console.log(`Striking ${prey.address} off the list`);
     }
-
     this.Teardown();
   }
 
@@ -33,15 +44,3 @@ class Jack {
     this.driver.quit();
   }
 }
-
-const jack = new Jack();
-const myGoogleAction = async () => {
-  const el = await jack.driver.findElement(By.css('input'));
-  return await el.getAttribute('name');
-};
-const myAppleAction = async () => {
-  return await jack.driver.getTitle();
-};
-jack.AddToHitList('http://www.google.com', [myGoogleAction, myGoogleAction]);
-jack.AddToHitList('http://www.apple.com', myAppleAction);
-jack.Ripper();
