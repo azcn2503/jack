@@ -3,6 +3,7 @@ import "babel-polyfill";
 
 export default class Jack {
   constructor(hitList = []) {
+    this.webdriver = webdriver;
     this.driver = new webdriver.Builder().forBrowser('chrome').build();
     this.By = By;
     this.until = until;
