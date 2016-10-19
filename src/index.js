@@ -1,10 +1,14 @@
 import webdriver, { By, until, wait, Key } from "selenium-webdriver";
+import chrome from "selenium-webdriver/chrome";
+import chromedriver from "chromedriver";
 import "babel-polyfill";
 
 export default class Jack {
   constructor(hitList = []) {
+    const service = new chrome.ServiceBuilder(chromedriver.path).build();
+    chrome.setDefaultService(service);
+    this.driver = new webdriver.Builder().withCapabilities(webdriver.Capabilities.chrome()).build();
     this.webdriver = webdriver;
-    this.driver = new webdriver.Builder().forBrowser('chrome').build();
     this.By = By;
     this.until = until;
     this.wait = wait;
@@ -43,8 +47,8 @@ export default class Jack {
           actionResults.push(null);
           continue;
         }
-        
-        console.log('Done!');
+
+        console.log('Completed that action!');
       }
       console.log(`Striking ${prey.address} off the list`);
     }
